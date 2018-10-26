@@ -1,0 +1,9 @@
+{
+   "files.associations": {
+      "functional": "cpp",
+      "__config": "cpp",
+      "*.ipp": "cpp"
+},
+"C_Cpp.intelliSenseEngineFallback": "Enabled",
+"python.pythonPath": "/home/sebastian/anaconda3/envs/eosf/bin/python"
+}

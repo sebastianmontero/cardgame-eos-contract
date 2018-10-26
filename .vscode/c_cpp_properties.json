@@ -1,0 +1,32 @@
+{
+    "configurations": [
+        {
+            "name": "LinuxWin32",
+            "includePath": [
+                "/var/lib/docker/volumes/docker-image-eos-factory_eos-contracts/_data/",
+                "/var/lib/docker/volumes/docker-image-eos-factory_eos-contracts/_data/libc++/upstream/include",
+                "/var/lib/docker/volumes/docker-image-eos-factory_eos-contracts/_data/musl/upstream/include",
+                "/var/lib/docker/volumes/docker-image-eos-factory_boost/_data/",
+                "/var/lib/docker/volumes/docker-image-eos-factory_usr-include/_data/",
+                "/var/lib/docker/volumes/docker-image-eos-factory_eos-externals/_data/magic_get/include",
+                "${workspaceFolder}"
+            ],
+            "defines": [],
+            "intelliSenseMode": "clang-x64",
+            "browse": {
+                "path": [
+                    "/var/lib/docker/volumes/docker-image-eos-factory_eos-contracts/_data/",
+                    "/var/lib/docker/volumes/docker-image-eos-factory_eos-contracts/_data/libc++/upstream/include",
+                    "/var/lib/docker/volumes/docker-image-eos-factory_eos-contracts/_data/musl/upstream/include",
+                    "/var/lib/docker/volumes/docker-image-eos-factory_boost/_data/",
+                    "/var/lib/docker/volumes/docker-image-eos-factory_usr-include/_data/",
+                    "/var/lib/docker/volumes/docker-image-eos-factory_eos-externals/_data/magic_get/include",
+                    "${workspaceFolder}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            }
+        }        
+    ],
+    "version": 4
+}
