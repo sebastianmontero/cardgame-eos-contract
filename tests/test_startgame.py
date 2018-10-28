@@ -1,11 +1,12 @@
 import unittest, sys
 from eosf import *
+from base_test import BaseTest
 
 verbosity([Verbosity.INFO, Verbosity.OUT])
 
 CONTRACT_WORKSPACE = sys.path[0] + "/../"
 
-class Test(unittest.TestCase):
+class Test(BaseTest):
 
     def run(self, result=None):
         super().run(result)
@@ -14,7 +15,7 @@ class Test(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         SCENARIO('''
-        Test card game actions
+        Test login action
         ''')
         reset()
         create_wallet()
@@ -35,12 +36,22 @@ class Test(unittest.TestCase):
         create_account("carol", master)
         create_account("bob", master)
 
+        host.push_action(
+            "login", {"username":alice}, permission=(alice, Permission.ACTIVE), forceUnique=1)
+
+        host.push_action(
+            "login", {"username":bob}, permission=(bob, Permission.ACTIVE), forceUnique=1)
+
 
     def setUp(self):
         pass
 
 
-    def testLogin(self):
+    def testGameDataInitialization(self):
+        
+        table = host.table('users', host)
+        initial_num_users = len(table.json['rows'])
+
         COMMENT('''
         Login first time with Alice
         ''')
@@ -48,7 +59,7 @@ class Test(unittest.TestCase):
             "login", {"username":alice}, permission=(alice, Permission.ACTIVE), forceUnique=1)
 
         table = host.table('users', host)
-        self.assertEqual(len(table.json['rows']), 1, 'Users table length should be one')
+        self.assertEqual(len(table.json['rows']), initial_num_users + 1, 'Wrong amount of users')
         self._validateUser(table.json['rows'], alice.name)
         
         COMMENT('''
@@ -58,7 +69,7 @@ class Test(unittest.TestCase):
             "login", {"username":alice}, permission=(alice, Permission.ACTIVE), forceUnique=1)
 
         table = host.table('users', host)
-        self.assertEqual(len(table.json['rows']), 1, 'Users table length should be 1')
+        self.assertEqual(len(table.json['rows']), initial_num_users + 1, 'Wrong amount of users')
         self._validateUser(table.json['rows'], alice.name)
 
         COMMENT('''
@@ -68,7 +79,7 @@ class Test(unittest.TestCase):
             "login", {"username":carol}, permission=(carol, Permission.ACTIVE), forceUnique=1)
 
         table = host.table('users', host)
-        self.assertEqual(len(table.json['rows']), 2, 'Users table length should be 2')
+        self.assertEqual(len(table.json['rows']), initial_num_users + 2, 'Wrong amount of users')
         self._validateUser(table.json['rows'], carol.name)
         
         COMMENT('''
@@ -78,35 +89,42 @@ class Test(unittest.TestCase):
             "login", {"username":carol}, permission=(carol, Permission.ACTIVE), forceUnique=1)
 
         table = host.table('users', host)
-        self.assertEqual(len(table.json['rows']), 2, 'Users table length should be 2')
+        self.assertEqual(len(table.json['rows']), initial_num_users + 2, 'Wrong amount of users')
         self._validateUser(table.json['rows'], carol.name)
 
+
+    def testExistance(self):
+
         COMMENT('''
-        FAIL: Try to login as Carol using Alice permission:
+        Start game with Bob that has already loggedIn
+        ''')
+        host.push_action(
+            "startgame", {"username":bob}, permission=(bob, Permission.ACTIVE), forceUnique=1)
+
+        COMMENT('''
+        FAIL: Try to start game as Carol that hasn't logged in:
+        ''')
+        with self.assertRaises(Error):
+            host.push_action(
+            "startgame", {"username":carol}, permission=(carol, Permission.ACTIVE), forceUnique=1)
+
+    def testAuthority(self):
+
+        COMMENT('''
+        Start game with Bob with proper permissions
+        ''')
+        host.push_action(
+            "startgame", {"username":bob}, permission=(bob, Permission.ACTIVE), forceUnique=1)
+
+        COMMENT('''
+        FAIL: Try to start game as Bob using Alice permission:
         ''')
         with self.assertRaises(MissingRequiredAuthorityError):
             host.push_action(
-            "login", {"username":carol}, permission=(alice, Permission.ACTIVE), forceUnique=1)
-
-
-
-    def _validateUser(self, rows, name, win_count=0, loss_count=0):
-        row = self._find_user(rows, name)
-        self.assertTrue(row, 'User {} must exist'.format(name))
-        self.assertEqual(row['name'], name, 'Name must be {}'.format(name))
-        self.assertEqual(row['win_count'], 0, 'Win count should be {}'.format(win_count))
-        self.assertEqual(row['loss_count'], 0, 'Loss count should be {}'.format(loss_count))
-
-    def _find_user(self, rows, name):
-        for row in rows:
-            if(row['name'] == name):
-                return row
-        return False
-
+            "startgame", {"username":bob}, permission=(alice, Permission.ACTIVE), forceUnique=1)
 
     def tearDown(self):
         pass
-
 
     @classmethod
     def tearDownClass(cls):
