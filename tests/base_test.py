@@ -23,10 +23,12 @@ class BaseTest(unittest.TestCase):
     def _validateGameData(self, expected, actual):
         self.assertEqual(expected['status'],
                          actual['status'], "Invalid status")
-        self.assertEqual(expected['life_player'],
-                         actual['life_player'], "Invalid player life")
-        self.assertEqual(expected['life_ai'],
-                         actual['life_ai'], "Invalid ai life")
+        if expected['life_player']:
+            self.assertEqual(expected['life_player'],
+                             actual['life_player'], "Invalid player life")
+        if expected['life_ai']:
+            self.assertEqual(expected['life_ai'],
+                             actual['life_ai'], "Invalid ai life")
         self.assertEqual(expected['selected_card_player'],
                          actual['selected_card_player'], "Invalid selected card player")
         self.assertEqual(expected['selected_card_ai'],
@@ -39,6 +41,37 @@ class BaseTest(unittest.TestCase):
         self._validateDeck(expected, actual, 'deck_ai')
         self._validateHand(expected, actual, 'hand_player')
         self._validateHand(expected, actual, 'hand_ai')
+
+    def _validateGameDataAfterPlayedHand(self, expected, actual, prevGame):
+        expected['life_player'] = prevGame['life_player'] - \
+            actual['life_lost_player']
+        expected['life_ai'] = prevGame['life_ai'] - actual['life_lost_ai']
+
+        aiCardIdx = self._aiPickedCardIdx(
+            actual['hand_ai'], prevGame['hand_ai'])
+        expected['selected_card_ai'] = prevGame['hand_ai'][aiCardIdx]
+        expected['hand_ai'] = prevGame['hand_ai'].copy()
+        expected['hand_ai'][aiCardIdx] = 0
+        self.assertEqual(expected['status'],
+                         actual['status'], "Invalid status")
+        self.assertEqual(expected['life_player'],
+                         actual['life_player'], "Invalid player life")
+        self.assertEqual(expected['life_ai'],
+                         actual['life_ai'], "Invalid ai life")
+        self.assertEqual(expected['selected_card_player'],
+                         actual['selected_card_player'], "Invalid selected card player")
+        self.assertEqual(expected['selected_card_ai'],
+                         actual['selected_card_ai'], "Invalid selected card ai")
+        self._validateDeck(expected, actual, 'deck_player')
+        self._validateDeck(expected, actual, 'deck_ai')
+        self._validateHand(expected, actual, 'hand_player')
+        self._validateHand(expected, actual, 'hand_ai')
+
+    def _aiPickedCardIdx(self, handAi, prevHandAi):
+        for pos, cardId in enumerate(handAi):
+            if cardId != prevHandAi[pos]:
+                return pos
+        raise Exception("AI didn't pick a card")
 
     def _validateDeck(self, expected, actual, deckKey):
         if deckKey in expected:

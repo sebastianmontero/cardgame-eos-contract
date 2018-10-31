@@ -56,7 +56,8 @@ class Test(BaseTest):
 
         table = host.table('users', host)
         user = self._validateUserExists(table.json['rows'], alice.name)
-        prevHandPlayer = user['game_data']['hand_player']
+        prevGameData = user['game_data']
+        prevHandPlayer = prevGameData['hand_player']
         COMMENT('''
         Playcard with Alice
         ''')
@@ -70,7 +71,8 @@ class Test(BaseTest):
         gameData['selected_card_player'] = prevHandPlayer[1]
         prevHandPlayer[1] = 0
         gameData['hand_player'] = prevHandPlayer
-        self._validateGameData(gameData, user['game_data'])
+        self._validateGameDataAfterPlayedHand(
+            gameData, user['game_data'], prevGameData)
 
     def testPlayWhenAlreadyPlayed(self):
 
