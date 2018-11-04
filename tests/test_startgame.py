@@ -1,6 +1,6 @@
 import unittest
 import sys
-from eosf import *
+from eosfactory.eosf import *
 from base_test import BaseTest
 
 verbosity([Verbosity.INFO, Verbosity.OUT])
@@ -21,7 +21,6 @@ class Test(BaseTest):
         reset()
         create_wallet()
         create_master_account("master")
-
         COMMENT('''
         Build and deploy the contract:
         ''')

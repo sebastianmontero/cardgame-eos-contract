@@ -1,6 +1,6 @@
 import unittest
 import sys
-from eosf import *
+from eosfactory.eosf import *
 from base_test import BaseTest
 
 verbosity([Verbosity.INFO, Verbosity.OUT])
